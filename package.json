@@ -22,7 +22,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@auth/core": "^0.37.4",
+    "@auth/core": "^0.34.2",
     "@auth/drizzle-adapter": "^1.7.4",
     "@neondatabase/serverless": "^1.0.0",
     "@tanstack/react-query": "^5.66.5",
