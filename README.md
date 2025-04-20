@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Learning Platform
 
-## Getting Started
+A comprehensive learning platform for junior developers to grow into senior engineers, tailored to enterprise-scale applications. This platform includes interactive lessons, exercises, guidelines, and code examples, with a dashboard for progress tracking.
 
-First, run the development server:
+## Features
 
+- **Interactive Lessons**: Comprehensive Next.js lessons from basics to advanced topics
+- **Coding Exercises**: Hands-on exercises with interactive code editors
+- **Progress Tracking**: Dashboard to monitor your learning journey
+- **Gamification**: Achievement system, learning streaks, and level progression
+- **Authentication**: Secure login with multiple providers (Email, GitHub, Google)
+- **Dark/Light Mode**: Customizable theme preferences
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 with App Router, React 18, TypeScript
+- **Styling**: Tailwind CSS with dark/light mode support
+- **Authentication**: NextAuth.js
+- **Database**: PostgreSQL with Drizzle ORM
+- **State Management**: React Context API
+- **Code Highlighting**: Syntax highlighting for code examples
+
+## Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/nextjs-learning-platform.git
+cd nextjs-learning-platform
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+Create a `.env.local` file in the root directory with the following variables:
+```
+# Database
+DATABASE_URL=postgresql://username:password@localhost:5432/nextjs_learning
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-key
 
-## Learn More
+# OAuth Providers (optional)
+GITHUB_ID=your-github-client-id
+GITHUB_SECRET=your-github-client-secret
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Run database migrations:
+```bash
+npm run db:migrate
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Seed the database with initial content:
+```bash
+npm run db:seed
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+6. Start the development server:
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+7. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+nextjs-learning-platform/
+├── app/                    # Next.js App Router
+│   ├── (learn)/            # Learning content routes
+│   │   ├── lessons/        # Lesson pages
+│   │   └── exercises/      # Exercise pages
+│   ├── api/                # API routes
+│   │   ├── auth/           # Authentication API
+│   │   └── progress/       # Progress tracking API
+│   ├── auth/               # Authentication pages
+│   ├── dashboard/          # User dashboard
+│   └── layout.tsx          # Root layout
+├── backend/                # Backend code
+│   └── db/                 # Database configuration and schema
+├── components/             # React components
+├── context/                # React context providers
+├── public/                 # Static assets
+├── scripts/                # Database scripts
+└── styles/                 # Global styles
+```
+
+## Documentation
+
+- [Architecture](./architecture.md) - Overall system architecture
+- [Database Schema](./database-schema.md) - Database design
+- [UI/UX & Gamification](./ui-ux-gamification.md) - UI/UX design and gamification elements
+- [Learning Content Structure](./learning-content-structure.md) - Content organization
+
+## Development
+
+- Run tests:
+```bash
+npm test
+```
+
+- Build for production:
+```bash
+npm run build
+```
+
+- Start production server:
+```bash
+npm start
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+"# nextjs-learning-platform" 
