@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/react';
 
 // กำหนดโครงสร้างข้อมูลความคืบหน้าของผู้ใช้
 interface Progress {
+  lessons: any;
+  exercises: any;
   level: number;
   points: number;
   completedLessons: string[];
@@ -31,6 +33,8 @@ const ProgressContext = createContext<ProgressContextType>({
     completedLessons: [],
     completedExercises: [],
     achievements: [],
+    lessons: [],
+    exercises: []
   },
   isLoading: false,
   error: null,
@@ -49,6 +53,8 @@ export const ProgressProvider = ({ children }: { children: ReactNode }) => {
     completedLessons: [],
     completedExercises: [],
     achievements: [],
+    lessons: [],
+    exercises: []
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

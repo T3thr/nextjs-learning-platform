@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, integer, boolean, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, boolean, primaryKey, json } from 'drizzle-orm/pg-core';
 import { achievements } from './gamification';
 
 // ตารางผู้ใช้งาน - เก็บข้อมูลผู้ใช้งานทั้งหมด
@@ -62,4 +62,15 @@ export const userAchievements = pgTable('user_achievements', {
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   achievementId: integer('achievement_id').notNull().references(() => achievements.id, { onDelete: 'restrict' }),
   earnedAt: timestamp('earned_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+// ตารางการเรียนต่อเนื่องของผู้ใช้ - เก็บข้อมูลการเรียนต่อเนื่อง
+export const userStreaks = pgTable('user_streaks', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  currentStreak: integer('current_streak').default(0).notNull(),
+  longestStreak: integer('longest_streak').default(0).notNull(),
+  lastActive: timestamp('last_active', { mode: 'date' }),
+  activeDays: json('active_days').default([]).notNull(), // เก็บวันที่ในรูปแบบ JSON
+  updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 });

@@ -1,99 +1,112 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useProgress } from '@/context/ProgressContext';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import { useProgress } from "@/context/ProgressContext";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 interface StreakTrackerProps {
   userId?: string;
 }
 
 // คอมโพเนนต์สำหรับติดตามและแสดงสถิติการเรียนต่อเนื่อง
-export default function StreakTracker({ userId }: StreakTrackerProps) {
+export default function StreakTracker({ userId: propUserId }: StreakTrackerProps) {
   // สถานะสำหรับเก็บข้อมูลการเรียนต่อเนื่อง
   const [streak, setStreak] = useState({
-    current: 0,
-    longest: 0,
-    lastActive: '',
-    daysActive: [] as string[],
+    currentStreak: 0,
+    longestStreak: 0,
+    lastActive: null as Date | null,
+    activeDays: [] as string[],
   });
-  
-  // ใช้ context สำหรับเข้าถึงข้อมูลความคืบหน้าของผู้ใช้
+
+  // ใช้ context สำหรับเข้าถึงข้อมูลความคืบหน้าและการยืนยันตัวตน
   const { progress } = useProgress();
-  
+  const { session, status } = useAuth();
+
   // คำนวณวันที่ปัจจุบัน
-  const today = new Date().toISOString().split('T')[0];
-  
-  // ตรวจสอบและอัปเดตสถิติการเรียนต่อเนื่อง
+  const today = new Date().toISOString().split("T")[0];
+
+  // ใช้ userId จาก props หรือ session
+  const userId = propUserId || (session?.user?.id as string);
+
+  // ดึงและอัปเดตข้อมูลการเรียนต่อเนื่อง
   useEffect(() => {
-    // จำลองการดึงข้อมูลจาก localStorage (ในโปรเจคจริงควรดึงจากฐานข้อมูล)
-    const storedStreak = localStorage.getItem('learningStreak');
-    let streakData = storedStreak ? JSON.parse(storedStreak) : {
-      current: 0,
-      longest: 0,
-      lastActive: '',
-      daysActive: [],
-    };
-    
-    // ตรวจสอบว่าวันนี้มีการเรียนหรือไม่
-    const hasActivityToday = progress.completedLessons.length > 0 || progress.completedExercises.length > 0;
-    
-    if (hasActivityToday && !streakData.daysActive.includes(today)) {
-      // เพิ่มวันนี้ในรายการวันที่มีการเรียน
-      streakData.daysActive.push(today);
-      
-      // ตรวจสอบว่าเป็นการเรียนต่อเนื่องหรือไม่
-      if (streakData.lastActive) {
-        const lastDate = new Date(streakData.lastActive);
-        const currentDate = new Date(today);
-        
-        // คำนวณจำนวนวันระหว่างวันที่เรียนล่าสุดกับวันนี้
-        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) {
-          // เรียนต่อเนื่อง เพิ่ม streak
-          streakData.current += 1;
-        } else if (diffDays > 1) {
-          // ไม่ได้เรียนต่อเนื่อง รีเซ็ต streak
-          streakData.current = 1;
+    if (status !== "authenticated" || !userId) return;
+
+    const fetchStreak = async () => {
+      try {
+        // ดึงข้อมูลการเรียนต่อเนื่องจาก API
+        const response = await fetch(`/api/streaks/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setStreak({
+            currentStreak: data.currentStreak,
+            longestStreak: data.longestStreak,
+            lastActive: data.lastActive ? new Date(data.lastActive) : null,
+            activeDays: data.activeDays,
+          });
         }
-      } else {
-        // เริ่มนับ streak วันแรก
-        streakData.current = 1;
+
+        // ตรวจสอบว่ามีการเรียนวันนี้หรือไม่
+        const hasActivityToday = progress.lessons.some(
+          (lesson: { completedAt: { toISOString: () => string; }; }) => lesson.completedAt && lesson.completedAt.toISOString().split("T")[0] === today
+        ) || progress.exercises.some(
+          (exercise: { completedAt: { toISOString: () => string; }; }) => exercise.completedAt && exercise.completedAt.toISOString().split("T")[0] === today
+        );
+
+        if (hasActivityToday) {
+          // อัปเดต streak ผ่าน API
+          await fetch(`/api/streaks/${userId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ hasActivityToday: true }),
+          });
+          // ดึงข้อมูลใหม่หลังอัปเดต
+          const updatedResponse = await fetch(`/api/streaks/${userId}`);
+          if (updatedResponse.ok) {
+            const updatedData = await updatedResponse.json();
+            setStreak({
+              currentStreak: updatedData.currentStreak,
+              longestStreak: updatedData.longestStreak,
+              lastActive: updatedData.lastActive ? new Date(updatedData.lastActive) : null,
+              activeDays: updatedData.activeDays,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการจัดการการเรียนต่อเนื่อง:", error);
       }
-      
-      // อัปเดตวันที่เรียนล่าสุด
-      streakData.lastActive = today;
-      
-      // อัปเดต streak ที่ยาวที่สุด
-      if (streakData.current > streakData.longest) {
-        streakData.longest = streakData.current;
-      }
-      
-      // บันทึกข้อมูลลง localStorage
-      localStorage.setItem('learningStreak', JSON.stringify(streakData));
-    }
-    
-    setStreak(streakData);
-  }, [progress.completedLessons.length, progress.completedExercises.length, today]);
+    };
+
+    fetchStreak();
+  }, [progress.lessons, progress.exercises, today, userId, status]);
+
+  // ถ้ายังไม่ล็อกอิน แสดงข้อความชั่วคราว
+  if (status !== "authenticated" || !userId) {
+    return (
+      <div className="bg-surface p-6 rounded-lg border border-text-secondary/10">
+        <h3 className="font-bold text-lg mb-4">การเรียนต่อเนื่อง</h3>
+        <p className="text-sm text-center">กรุณาเข้าสู่ระบบเพื่อดูสถิติการเรียนต่อเนื่อง</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-surface p-6 rounded-lg border border-text-secondary/10">
       <h3 className="font-bold text-lg mb-4">การเรียนต่อเนื่อง</h3>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center p-4 bg-background rounded-lg">
-          <div className="text-3xl font-bold text-primary">{streak.current}</div>
+          <div className="text-3xl font-bold text-primary">{streak.currentStreak}</div>
           <div className="text-sm text-text-secondary">วันต่อเนื่อง</div>
         </div>
-        
+
         <div className="text-center p-4 bg-background rounded-lg">
-          <div className="text-3xl font-bold text-primary">{streak.longest}</div>
+          <div className="text-3xl font-bold text-primary">{streak.longestStreak}</div>
           <div className="text-sm text-text-secondary">สูงสุด</div>
         </div>
       </div>
-      
+
       {/* แสดงแถบวันในสัปดาห์ */}
       <div className="mt-4">
         <div className="text-sm text-text-secondary mb-2">7 วันล่าสุด</div>
@@ -102,23 +115,25 @@ export default function StreakTracker({ userId }: StreakTrackerProps) {
             // คำนวณวันย้อนหลัง
             const date = new Date();
             date.setDate(date.getDate() - (6 - index));
-            const dateStr = date.toISOString().split('T')[0];
-            
+            const dateStr = date.toISOString().split("T")[0];
+
             // ตรวจสอบว่ามีการเรียนในวันนั้นหรือไม่
-            const isActive = streak.daysActive.includes(dateStr);
-            
+            const isActive = streak.activeDays.includes(dateStr);
+
             // ชื่อวันในสัปดาห์ภาษาไทย
-            const dayNames = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+            const dayNames = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
             const dayName = dayNames[date.getDay()];
-            
+
             return (
               <div key={index} className="flex flex-col items-center">
                 <div className="text-xs text-text-secondary mb-1">{dayName}</div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  isActive 
-                    ? 'bg-primary text-white' 
-                    : 'bg-background border border-text-secondary/20'
-                }`}>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "bg-background border border-text-secondary/20"
+                  }`}
+                >
                   {date.getDate()}
                 </div>
               </div>
@@ -126,12 +141,12 @@ export default function StreakTracker({ userId }: StreakTrackerProps) {
           })}
         </div>
       </div>
-      
+
       {/* ข้อความกระตุ้น */}
       <div className="mt-6 text-center">
-        {streak.current > 0 ? (
+        {streak.currentStreak > 0 ? (
           <p className="text-sm">
-            เยี่ยมมาก! คุณเรียนต่อเนื่องมาแล้ว {streak.current} วัน 🔥
+            เยี่ยมมาก! คุณเรียนต่อเนื่องมาแล้ว {streak.currentStreak} วัน 🔥
           </p>
         ) : (
           <p className="text-sm">
@@ -139,10 +154,13 @@ export default function StreakTracker({ userId }: StreakTrackerProps) {
           </p>
         )}
       </div>
-      
+
       {/* ปุ่มไปยังบทเรียน */}
       <div className="mt-4">
-        <Link href="/lessons" className="block w-full text-center py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+        <Link
+          href="/lessons"
+          className="block w-full text-center py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+        >
           เรียนต่อ
         </Link>
       </div>

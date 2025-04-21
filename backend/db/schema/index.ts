@@ -1,4 +1,4 @@
-import { users, accounts, sessions, verificationTokens, userPoints, userAchievements } from './users';
+import { users, accounts, sessions, verificationTokens, userPoints, userAchievements, userStreaks } from './users';
 import { categories, lessons, exercises, guidelines, examples, userProgress } from './content';
 import { achievements, feedback } from './gamification';
 
@@ -11,6 +11,7 @@ export {
   verificationTokens,
   userPoints,
   userAchievements,
+  userStreaks,
   
   // Content-related schemas
   categories,
