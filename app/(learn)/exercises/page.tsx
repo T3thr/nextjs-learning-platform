@@ -3,6 +3,10 @@
 
 import ExerciseCard from '@/components/ExerciseCard';
 import { Suspense } from 'react';
+import { db } from '@/backend/db';
+import { exercises, lessons } from '@/backend/db/schema';
+import { eq } from 'drizzle-orm';
+import type { NextPage } from 'next';
 
 // อินเตอร์เฟสสำหรับข้อมูลแบบฝึกหัด
 // Interface for exercise data
@@ -16,81 +20,52 @@ interface Exercise {
   lessonTitle: string;
 }
 
-// ฟังก์ชันจำลองการดึงข้อมูลแบบฝึกหัด (ในโปรเจคจริงควรดึงจากฐานข้อมูล)
-// Mock function to fetch exercises (in a real project, fetch from a database)
+// ฟังก์ชันสำหรับดึงข้อมูลแบบฝึกหัดจากฐานข้อมูล
+// Function to fetch exercises from the database
 async function getExercises(): Promise<Exercise[]> {
-  return [
-    {
-      id: '1',
-      title: 'สร้างหน้าแรกด้วย Next.js',
-      description: 'ฝึกสร้างหน้าแรกของเว็บไซต์ด้วย Next.js',
-      difficulty: 'beginner',
-      points: 10,
-      lessonId: '1',
-      lessonTitle: 'แนะนำ Next.js',
-    },
-    {
-      id: '2',
-      title: 'สร้างเส้นทางแบบไดนามิกด้วย App Router',
-      description: 'ฝึกสร้างเส้นทางแบบไดนามิกด้วย App Router ของ Next.js',
-      difficulty: 'beginner',
-      points: 15,
-      lessonId: '2',
-      lessonTitle: 'พื้นฐาน App Router',
-    },
-    {
-      id: '3',
-      title: 'ดึงข้อมูลด้วย Server Components',
-      description: 'ฝึกการดึงข้อมูลจาก API ด้วย Server Components',
-      difficulty: 'intermediate',
-      points: 20,
-      lessonId: '3',
-      lessonTitle: 'การจัดการข้อมูลใน Next.js',
-    },
-    {
-      id: '4',
-      title: 'สร้างฟอร์มด้วย Client Components',
-      description: 'ฝึกการสร้างฟอร์มและจัดการสถานะด้วย Client Components',
-      difficulty: 'intermediate',
-      points: 25,
-      lessonId: '3',
-      lessonTitle: 'การจัดการข้อมูลใน Next.js',
-    },
-    {
-      id: '5',
-      title: 'สร้างโครงสร้างโปรเจคระดับองค์กร',
-      description: 'ฝึกการจัดโครงสร้างโปรเจค Next.js สำหรับแอปพลิเคชันขนาดใหญ่',
-      difficulty: 'advanced',
-      points: 30,
-      lessonId: '4',
-      lessonTitle: 'สถาปัตยกรรมระดับองค์กร',
-    },
-    {
-      id: '6',
-      title: 'เพิ่มประสิทธิภาพการโหลดข้อมูล',
-      description: 'ฝึกการใช้เทคนิคต่างๆ เพื่อเพิ่มประสิทธิภาพการโหลดข้อมูลใน Next.js',
-      difficulty: 'advanced',
-      points: 35,
-      lessonId: '6',
-      lessonTitle: 'การเพิ่มประสิทธิภาพ Next.js',
-    },
-  ];
+  try {
+    // ดึงข้อมูลแบบฝึกหัดพร้อมชื่อบทเรียนจากตาราง lessons
+    const exerciseData = await db
+      .select({
+        id: exercises.id,
+        title: exercises.title,
+        description: exercises.description,
+        difficulty: exercises.difficulty,
+        points: exercises.points,
+        lessonId: exercises.lessonId,
+        lessonTitle: lessons.title,
+      })
+      .from(exercises)
+      .leftJoin(lessons, eq(exercises.lessonId, lessons.id));
+
+    // แปลงข้อมูลให้ตรงกับโครงสร้าง Exercise
+    return exerciseData.map((exercise) => ({
+      id: exercise.id.toString(),
+      title: exercise.title,
+      description: exercise.description,
+      difficulty: exercise.difficulty as 'beginner' | 'intermediate' | 'advanced',
+      points: exercise.points,
+      lessonId: exercise.lessonId?.toString() || '',
+      lessonTitle: exercise.lessonTitle || 'ไม่มีบทเรียน',
+    }));
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลแบบฝึกหัด:', error);
+    return [];
+  }
 }
 
 // หน้าแสดงรายการแบบฝึกหัดทั้งหมด
 // Page to display all exercises
-export default async function ExercisesPage({
-  searchParams,
-}: {
-  searchParams: { difficulty?: string };
-}) {
+const ExercisesPage: NextPage<{
+  searchParams: Record<string, string | string[] | undefined>;
+}> = async ({ searchParams }) => {
   // ดึงข้อมูลแบบฝึกหัด
   // Fetch exercise data
   const exercises = await getExercises();
-  
+
   // กรองแบบฝึกหัดตามระดับความยาก (ถ้ามีการระบุ)
   // Filter exercises by difficulty (if specified)
-  const difficulty = searchParams.difficulty;
+  const difficulty = searchParams.difficulty as string | undefined;
   const filteredExercises = difficulty && difficulty !== 'all'
     ? exercises.filter((exercise) => exercise.difficulty === difficulty)
     : exercises;
@@ -155,4 +130,6 @@ export default async function ExercisesPage({
       </Suspense>
     </div>
   );
-}
+};
+
+export default ExercisesPage;
