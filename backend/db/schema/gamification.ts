@@ -6,6 +6,7 @@ import { examples, exercises, guidelines, lessons } from './content';
 export const achievements = pgTable('achievements', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
+  points: integer('points').default(0).notNull(),
   description: text('description').notNull(),
   icon: text('icon').notNull(),
   requiredPoints: integer('required_points').notNull(),

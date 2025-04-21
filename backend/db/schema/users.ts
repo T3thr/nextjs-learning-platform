@@ -59,6 +59,7 @@ export const userPoints = pgTable('user_points', {
 // ตารางความสำเร็จของผู้ใช้ - เก็บข้อมูลความสำเร็จที่ผู้ใช้ได้รับ
 export const userAchievements = pgTable('user_achievements', {
   id: serial('id').primaryKey(),
+  points: integer('user_id').default(0).notNull(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   achievementId: integer('achievement_id').notNull().references(() => achievements.id, { onDelete: 'restrict' }),
   earnedAt: timestamp('earned_at', { mode: 'date' }).defaultNow().notNull(),
