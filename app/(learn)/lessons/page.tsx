@@ -3,6 +3,9 @@
 
 import LessonCard from '@/components/LessonCard';
 import { Suspense } from 'react';
+import { db } from '@/backend/db';
+import { lessons, categories } from '@/backend/db/schema';
+import { eq } from 'drizzle-orm';
 
 // อินเตอร์เฟสสำหรับข้อมูลบทเรียน
 // Interface for lesson data
@@ -16,65 +19,37 @@ interface Lesson {
   category: string;
 }
 
-// ฟังก์ชันจำลองการดึงข้อมูลบทเรียน (ในโปรเจคจริงควรดึงจากฐานข้อมูล)
-// Mock function to fetch lessons (in a real project, fetch from a database)
+// ฟังก์ชันสำหรับดึงข้อมูลบทเรียนจากฐานข้อมูล
+// Function to fetch lessons from the database
 async function getLessons(): Promise<Lesson[]> {
-  return [
-    {
-      id: '1',
-      slug: 'introduction-to-nextjs',
-      title: 'แนะนำ Next.js',
-      description: 'ทำความรู้จักกับ Next.js และประโยชน์ของการใช้งาน',
-      difficulty: 'beginner',
-      estimatedMinutes: 15,
-      category: 'Next.js พื้นฐาน',
-    },
-    {
-      id: '2',
-      slug: 'app-router-basics',
-      title: 'พื้นฐาน App Router',
-      description: 'เรียนรู้การใช้งาน App Router ใน Next.js 13+',
-      difficulty: 'beginner',
-      estimatedMinutes: 20,
-      category: 'Next.js พื้นฐาน',
-    },
-    {
-      id: '3',
-      slug: 'data-fetching',
-      title: 'การจัดการข้อมูลใน Next.js',
-      description: 'เรียนรู้วิธีการดึงข้อมูลใน Next.js ด้วย Server Components',
-      difficulty: 'beginner',
-      estimatedMinutes: 25,
-      category: 'Next.js พื้นฐาน',
-    },
-    {
-      id: '4',
-      slug: 'enterprise-architecture',
-      title: 'สถาปัตยกรรมระดับองค์กร',
-      description: 'เรียนรู้การออกแบบสถาปัตยกรรม Next.js สำหรับแอปพลิเคชันขนาดใหญ่',
-      difficulty: 'intermediate',
-      estimatedMinutes: 30,
-      category: 'การพัฒนาแอปพลิเคชันระดับองค์กร',
-    },
-    {
-      id: '5',
-      slug: 'advanced-state-management',
-      title: 'การจัดการสถานะขั้นสูง',
-      description: 'เรียนรู้เทคนิคการจัดการสถานะขั้นสูงใน Next.js',
-      difficulty: 'intermediate',
-      estimatedMinutes: 35,
-      category: 'การพัฒนาแอปพลิเคชันระดับองค์กร',
-    },
-    {
-      id: '6',
-      slug: 'nextjs-optimization',
-      title: 'การเพิ่มประสิทธิภาพ Next.js',
-      description: 'เรียนรู้เทคนิคการเพิ่มประสิทธิภาพแอปพลิเคชัน Next.js',
-      difficulty: 'advanced',
-      estimatedMinutes: 40,
-      category: 'รูปแบบขั้นสูงและการเพิ่มประสิทธิภาพ',
-    },
-  ];
+  try {
+    const lessonData = await db
+      .select({
+        id: lessons.id,
+        slug: lessons.slug,
+        title: lessons.title,
+        description: lessons.description,
+        difficulty: lessons.difficulty,
+        estimatedMinutes: lessons.estimatedMinutes,
+        category: categories.name,
+      })
+      .from(lessons)
+      .leftJoin(categories, eq(lessons.categoryId, categories.id));
+
+    // แปลงข้อมูลให้ตรงกับอินเตอร์เฟส
+    return lessonData.map((lesson) => ({
+      id: lesson.id.toString(),
+      slug: lesson.slug,
+      title: lesson.title,
+      description: lesson.description,
+      difficulty: lesson.difficulty as 'beginner' | 'intermediate' | 'advanced',
+      estimatedMinutes: lesson.estimatedMinutes,
+      category: lesson.category || 'ไม่มีหมวดหมู่',
+    }));
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลบทเรียน:', error);
+    return [];
+  }
 }
 
 // หน้าแสดงรายการบทเรียนทั้งหมด
@@ -82,15 +57,15 @@ async function getLessons(): Promise<Lesson[]> {
 export default async function LessonsPage({
   searchParams,
 }: {
-  searchParams: { difficulty?: string };
+  searchParams: Promise<{ difficulty?: string }>;
 }) {
   // ดึงข้อมูลบทเรียน
   // Fetch lesson data
   const lessons = await getLessons();
-  
+
   // กรองบทเรียนตามระดับความยาก (ถ้ามีการระบุ)
   // Filter lessons by difficulty (if specified)
-  const difficulty = searchParams.difficulty;
+  const { difficulty } = await searchParams;
   const filteredLessons = difficulty && difficulty !== 'all'
     ? lessons.filter((lesson) => lesson.difficulty === difficulty)
     : lessons;
