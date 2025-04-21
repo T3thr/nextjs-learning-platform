@@ -6,7 +6,6 @@ import { Suspense } from 'react';
 import { db } from '@/backend/db';
 import { exercises, lessons } from '@/backend/db/schema';
 import { eq } from 'drizzle-orm';
-import type { NextPage } from 'next';
 
 // อินเตอร์เฟสสำหรับข้อมูลแบบฝึกหัด
 // Interface for exercise data
@@ -24,7 +23,6 @@ interface Exercise {
 // Function to fetch exercises from the database
 async function getExercises(): Promise<Exercise[]> {
   try {
-    // ดึงข้อมูลแบบฝึกหัดพร้อมชื่อบทเรียนจากตาราง lessons
     const exerciseData = await db
       .select({
         id: exercises.id,
@@ -38,7 +36,7 @@ async function getExercises(): Promise<Exercise[]> {
       .from(exercises)
       .leftJoin(lessons, eq(exercises.lessonId, lessons.id));
 
-    // แปลงข้อมูลให้ตรงกับโครงสร้าง Exercise
+    // แปลงข้อมูลให้ตรงกับอินเตอร์เฟส
     return exerciseData.map((exercise) => ({
       id: exercise.id.toString(),
       title: exercise.title,
@@ -46,7 +44,7 @@ async function getExercises(): Promise<Exercise[]> {
       difficulty: exercise.difficulty as 'beginner' | 'intermediate' | 'advanced',
       points: exercise.points,
       lessonId: exercise.lessonId?.toString() || '',
-      lessonTitle: exercise.lessonTitle || 'ไม่มีบทเรียน',
+      lessonTitle: exercise.lessonTitle || 'ไม่มีบทเรียนที่เกี่ยวข้อง',
     }));
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลแบบฝึกหัด:', error);
@@ -56,16 +54,18 @@ async function getExercises(): Promise<Exercise[]> {
 
 // หน้าแสดงรายการแบบฝึกหัดทั้งหมด
 // Page to display all exercises
-const ExercisesPage: NextPage<{
-  searchParams: Record<string, string | string[] | undefined>;
-}> = async ({ searchParams }) => {
+export default async function ExercisesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ difficulty?: string }>;
+}) {
   // ดึงข้อมูลแบบฝึกหัด
   // Fetch exercise data
   const exercises = await getExercises();
 
   // กรองแบบฝึกหัดตามระดับความยาก (ถ้ามีการระบุ)
   // Filter exercises by difficulty (if specified)
-  const difficulty = searchParams.difficulty as string | undefined;
+  const { difficulty } = await searchParams;
   const filteredExercises = difficulty && difficulty !== 'all'
     ? exercises.filter((exercise) => exercise.difficulty === difficulty)
     : exercises;
@@ -130,6 +130,4 @@ const ExercisesPage: NextPage<{
       </Suspense>
     </div>
   );
-};
-
-export default ExercisesPage;
+}
