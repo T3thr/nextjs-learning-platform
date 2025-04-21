@@ -4,9 +4,18 @@ import { userStreaks } from "@/backend/db/schema/users";
 import { eq, and, gte } from "drizzle-orm";
 
 // API Route สำหรับจัดการข้อมูลการเรียนต่อเนื่องของผู้ใช้
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Record<string, string | string[]> }) {
   try {
-    const userId = parseInt(params.userId);
+    // ดึงและตรวจสอบ userId จาก params
+    const userIdParam = params.userId;
+    const userId = parseInt(Array.isArray(userIdParam) ? userIdParam[0] : userIdParam);
+
+    if (isNaN(userId)) {
+      return NextResponse.json(
+        { message: "userId ไม่ถูกต้อง" },
+        { status: 400 }
+      );
+    }
 
     // ดึงข้อมูลการเรียนต่อเนื่อง
     const streak = await db.query.userStreaks.findFirst({
@@ -43,9 +52,19 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Record<string, string | string[]> }) {
   try {
-    const userId = parseInt(params.userId);
+    // ดึงและตรวจสอบ userId จาก params
+    const userIdParam = params.userId;
+    const userId = parseInt(Array.isArray(userIdParam) ? userIdParam[0] : userIdParam);
+
+    if (isNaN(userId)) {
+      return NextResponse.json(
+        { message: "userId ไม่ถูกต้อง" },
+        { status: 400 }
+      );
+    }
+
     const { hasActivityToday } = await request.json();
 
     // ดึงข้อมูลการเรียนต่อเนื่องปัจจุบัน
