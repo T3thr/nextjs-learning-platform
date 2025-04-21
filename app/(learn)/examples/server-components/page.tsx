@@ -135,7 +135,7 @@ export default async function ProductsPage() {
               <p className="text-text-secondary mb-2 line-clamp-2">{product.description}</p>
               
               <div className="flex justify-between items-center">
-                <span className="text-lg font-bold">${product.price}</span>
+                <span className="text-lg font-bold">{\`product.price\`}</span>
                 
                 <div className="flex items-center">
                   <span className="text-yellow-500 mr-1">★</span>
@@ -287,7 +287,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <span className="text-text-secondary">{product.rating.count} รีวิว</span>
           </div>
           
-          <p className="text-2xl font-bold mb-6">${product.price}</p>
+          <p className="text-2xl font-bold mb-6">{\`product.price\`}</p>
           
           <p className="mb-6">{product.description}</p>
           
@@ -318,7 +318,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   <h3 className="text-lg font-semibold mb-2 line-clamp-1">{relatedProduct.title}</h3>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold">${relatedProduct.price}</span>
+                    <span className="text-lg font-bold">{\`relatedProduct.price\`}</span>
                     
                     <Link
                       href={\`/products/\${relatedProduct.id}\`}
@@ -732,7 +732,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <span className="text-text-secondary">{product.rating.count} รีวิว</span>
           </div>
           
-          <p className="text-2xl font-bold mb-6">${product.price}</p>
+          <p className="text-2xl font-bold mb-6">{\`product.price\`}</p>
           
           <p className="mb-6">{product.description}</p>
           
@@ -1106,7 +1106,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <span className="text-text-secondary">{product.rating.count} รีวิว</span>
           </div>
           
-          <p className="text-2xl font-bold mb-6">${product.price}</p>
+          <p className="text-2xl font-bold mb-6">{\`product.price\`}</p>
           
           <p className="mb-6">{product.description}</p>
           

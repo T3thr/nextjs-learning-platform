@@ -4,9 +4,18 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useSession } from 'next-auth/react';
 
 // กำหนดโครงสร้างข้อมูลความคืบหน้าของผู้ใช้
+interface ProgressData {
+  id: string;
+  completed: boolean;
+  score: number;
+  completedAt?: Date;
+  attempts: number;
+  lastAttemptAt?: Date;
+}
+
 interface Progress {
-  lessons: any;
-  exercises: any;
+  lessons: ProgressData[];
+  exercises: ProgressData[];
   level: number;
   points: number;
   completedLessons: string[];
@@ -91,7 +100,7 @@ export const ProgressProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
 
     try {
-      const response = await fetch('/api/progress/update', {
+      const response = await fetch('/api/progress', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,10 +1,87 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงรายละเอียดบทเรียนการจัดการข้อมูลใน Next.js
 export default function DataFetchingPage() {
+  return (
+    <div className="container mx-auto py-8">
+      {/* ส่วนหัวของบทเรียน */}
+      <div className="mb-8">
+        <div className="flex items-center text-text-secondary mb-4">
+          <Link href="/lessons" className="flex items-center hover:text-primary transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            กลับไปยังรายการบทเรียน
+          </Link>
+        </div>
+        
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">การจัดการข้อมูลใน Next.js</h1>
+            <p className="text-text-secondary">เรียนรู้วิธีการดึงข้อมูลใน Next.js ด้วย Server Components</p>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs mr-2">
+              เริ่มต้น
+            </span>
+            <span className="flex items-center text-text-secondary text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              25 นาที
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {/* เนื้อหาบทเรียน */}
+      <div className="bg-surface p-8 rounded-lg">
+        <ErrorBoundary fallback={<div>เกิดข้อผิดพลาดในการโหลดเนื้อหาบทเรียน</div>}>
+          <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
+            <DataFetchingContent />
+          </Suspense>
+        </ErrorBoundary>
+        
+        {/* ปุ่มนำทาง */}
+        <div className="mt-12 pt-6 border-t border-text-secondary/10 flex justify-between">
+          <Link href="/lessons/app-router-basics" className="btn btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            บทเรียนก่อนหน้า: พื้นฐาน App Router
+          </Link>
+          <Link href="/lessons/enterprise-architecture" className="btn btn-primary">
+            บทเรียนถัดไป: สถาปัตยกรรมระดับองค์กร
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 ml-1">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+      
+      {/* แบบฝึกหัดที่เกี่ยวข้อง */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">แบบฝึกหัดที่เกี่ยวข้อง</h2>
+        <div className="bg-surface p-6 rounded-lg">
+          <Link href="/exercises/3" className="block hover:bg-background rounded-lg p-4 transition-colors">
+            <h3 className="font-bold mb-1">สร้างหน้าแสดงข้อมูลจาก API</h3>
+            <p className="text-text-secondary">ฝึกการดึงข้อมูลจาก API และแสดงผลใน Next.js</p>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// แยกเนื้อหาออกเป็นคอมโพเนนต์ย่อยเพื่อใช้ Suspense
+function DataFetchingContent() {
   // เนื้อหาบทเรียนในรูปแบบ Markdown
   const lessonContent = `# การจัดการข้อมูลใน Next.js
 
@@ -246,79 +323,18 @@ export async function POST(request: Request) {
 ในบทเรียนถัดไป เราจะเรียนรู้เกี่ยวกับสถาปัตยกรรมระดับองค์กรสำหรับแอปพลิเคชัน Next.js ขนาดใหญ่`;
 
   return (
-    <div className="container mx-auto py-8">
-      {/* ส่วนหัวของบทเรียน */}
-      <div className="mb-8">
-        <div className="flex items-center text-text-secondary mb-4">
-          <Link href="/lessons" className="flex items-center hover:text-primary transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            กลับไปยังรายการบทเรียน
-          </Link>
-        </div>
-        
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">การจัดการข้อมูลใน Next.js</h1>
-            <p className="text-text-secondary">เรียนรู้วิธีการดึงข้อมูลใน Next.js ด้วย Server Components</p>
-          </div>
-          
-          <div className="flex items-center">
-            <span className="badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs mr-2">
-              เริ่มต้น
-            </span>
-            <span className="flex items-center text-text-secondary text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              25 นาที
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {/* เนื้อหาบทเรียน */}
-      <div className="bg-surface p-8 rounded-lg">
-        <MarkdownContent content={lessonContent} lessonId="3" />
-        <CodeBlock code={serverFetchingCode} language="typescript" fileName="app/users/page.tsx" />
-        <MarkdownContent content={parallelFetchingContent} />
-        <CodeBlock code={parallelFetchingCode} language="typescript" fileName="app/dashboard/page.tsx" />
-        <MarkdownContent content={staticDynamicContent} />
-        <CodeBlock code={staticDynamicCode} language="typescript" fileName="Data Fetching Options" />
-        <MarkdownContent content={clientFetchingContent} />
-        <CodeBlock code={clientFetchingCode} language="typescript" fileName="app/search/page.tsx" />
-        <MarkdownContent content={routeHandlersContent} />
-        <CodeBlock code={routeHandlersCode} language="typescript" fileName="app/api/users/route.ts" />
-        <MarkdownContent content={summaryContent} />
-        
-        {/* ปุ่มนำทาง */}
-        <div className="mt-12 pt-6 border-t border-text-secondary/10 flex justify-between">
-          <Link href="/lessons/app-router-basics" className="btn btn-outline">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            บทเรียนก่อนหน้า: พื้นฐาน App Router
-          </Link>
-          <Link href="/lessons/enterprise-architecture" className="btn btn-primary">
-            บทเรียนถัดไป: สถาปัตยกรรมระดับองค์กร
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 ml-1">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </Link>
-        </div>
-      </div>
-      
-      {/* แบบฝึกหัดที่เกี่ยวข้อง */}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">แบบฝึกหัดที่เกี่ยวข้อง</h2>
-        <div className="bg-surface p-6 rounded-lg">
-          <Link href="/exercises/3" className="block hover:bg-background rounded-lg p-4 transition-colors">
-            <h3 className="font-bold mb-1">สร้างหน้าแสดงข้อมูลจาก API</h3>
-            <p className="text-text-secondary">ฝึกการดึงข้อมูลจาก API และแสดงผลใน Next.js</p>
-          </Link>
-        </div>
-      </div>
-    </div>
+    <>
+      <MarkdownContent content={lessonContent} lessonId="3" />
+      <CodeBlock code={serverFetchingCode} language="typescript" fileName="app/users/page.tsx" />
+      <MarkdownContent content={parallelFetchingContent} />
+      <CodeBlock code={parallelFetchingCode} language="typescript" fileName="app/dashboard/page.tsx" />
+      <MarkdownContent content={staticDynamicContent} />
+      <CodeBlock code={staticDynamicCode} language="typescript" fileName="Data Fetching Options" />
+      <MarkdownContent content={clientFetchingContent} />
+      <CodeBlock code={clientFetchingCode} language="typescript" fileName="app/search/page.tsx" />
+      <MarkdownContent content={routeHandlersContent} />
+      <CodeBlock code={routeHandlersCode} language="typescript" fileName="app/api/users/route.ts" />
+      <MarkdownContent content={summaryContent} />
+    </>
   );
 }

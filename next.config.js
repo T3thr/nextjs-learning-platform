@@ -8,6 +8,7 @@ const nextConfig = {
   // Enable App Router
   experimental: {
     serverActions: true,
+    missingSuspenseWithCSRBailout: false,
   },
   
   // กำหนดค่า images domains ที่อนุญาต

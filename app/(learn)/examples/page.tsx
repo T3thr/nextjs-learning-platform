@@ -1,5 +1,8 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงรายการตัวอย่างการใช้งาน Next.js
 export default function ExamplesPage() {
@@ -138,6 +141,14 @@ export default function ExamplesPage() {
           </Link>
         ))}
       </div>
+                  {/* เนื้อหาบทเรียน */}
+                  <div className="bg-surface p-8 rounded-lg">
+        <ErrorBoundary fallback={<div>เกิดข้อผิดพลาดในการโหลดเนื้อหาบทเรียน</div>}>
+          <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
+                  <ExamplesPage />
+          </Suspense>
+        </ErrorBoundary>
+            </div>
     </div>
   );
 }

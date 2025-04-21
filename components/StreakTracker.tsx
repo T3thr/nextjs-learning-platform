@@ -9,9 +9,12 @@ interface StreakTrackerProps {
   userId?: string;
 }
 
-// คอมโพเนนต์สำหรับติดตามและแสดงสถิติการเรียนต่อเนื่อง
+interface ProgressItem {
+  completedAt?: Date;
+  // Add other properties if they exist in your progress data
+}
+
 export default function StreakTracker({ userId: propUserId }: StreakTrackerProps) {
-  // สถานะสำหรับเก็บข้อมูลการเรียนต่อเนื่อง
   const [streak, setStreak] = useState({
     currentStreak: 0,
     longestStreak: 0,
@@ -19,24 +22,18 @@ export default function StreakTracker({ userId: propUserId }: StreakTrackerProps
     activeDays: [] as string[],
   });
 
-  // ใช้ context สำหรับเข้าถึงข้อมูลความคืบหน้าและการยืนยันตัวตน
   const { progress } = useProgress();
   const { session, status } = useAuth();
 
-  // คำนวณวันที่ปัจจุบัน
   const today = new Date().toISOString().split("T")[0];
-
-  // ใช้ userId จาก props หรือ session
   const userId = propUserId || (session?.user?.id as string);
 
-  // ดึงและอัปเดตข้อมูลการเรียนต่อเนื่อง
   useEffect(() => {
     if (status !== "authenticated" || !userId) return;
 
     const fetchStreak = async () => {
       try {
-        // ดึงข้อมูลการเรียนต่อเนื่องจาก API
-        const response = await fetch(`/api/streaks/${userId}`);
+        const response = await fetch(`/api/streaks?userId=${userId}`);
         if (response.ok) {
           const data = await response.json();
           setStreak({
@@ -47,22 +44,28 @@ export default function StreakTracker({ userId: propUserId }: StreakTrackerProps
           });
         }
 
-        // ตรวจสอบว่ามีการเรียนวันนี้หรือไม่
-        const hasActivityToday = progress.lessons.some(
-          (lesson: { completedAt: { toISOString: () => string; }; }) => lesson.completedAt && lesson.completedAt.toISOString().split("T")[0] === today
-        ) || progress.exercises.some(
-          (exercise: { completedAt: { toISOString: () => string; }; }) => exercise.completedAt && exercise.completedAt.toISOString().split("T")[0] === today
-        );
+        // Fixed type handling for progress items
+        const hasActivityToday = 
+          (progress.lessons as ProgressItem[]).some((lesson) => {
+            return lesson.completedAt && 
+                   new Date(lesson.completedAt).toISOString().split("T")[0] === today;
+          }) || 
+          (progress.exercises as ProgressItem[]).some((exercise) => {
+            return exercise.completedAt && 
+                   new Date(exercise.completedAt).toISOString().split("T")[0] === today;
+          });
 
         if (hasActivityToday) {
-          // อัปเดต streak ผ่าน API
-          await fetch(`/api/streaks/${userId}`, {
+          await fetch(`/api/streaks`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hasActivityToday: true }),
+            body: JSON.stringify({ 
+              userId,
+              hasActivityToday: true 
+            }),
           });
-          // ดึงข้อมูลใหม่หลังอัปเดต
-          const updatedResponse = await fetch(`/api/streaks/${userId}`);
+          
+          const updatedResponse = await fetch(`/api/streaks?userId=${userId}`);
           if (updatedResponse.ok) {
             const updatedData = await updatedResponse.json();
             setStreak({
@@ -81,7 +84,6 @@ export default function StreakTracker({ userId: propUserId }: StreakTrackerProps
     fetchStreak();
   }, [progress.lessons, progress.exercises, today, userId, status]);
 
-  // ถ้ายังไม่ล็อกอิน แสดงข้อความชั่วคราว
   if (status !== "authenticated" || !userId) {
     return (
       <div className="bg-surface p-6 rounded-lg border border-text-secondary/10">
@@ -112,15 +114,10 @@ export default function StreakTracker({ userId: propUserId }: StreakTrackerProps
         <div className="text-sm text-text-secondary mb-2">7 วันล่าสุด</div>
         <div className="flex justify-between">
           {Array.from({ length: 7 }).map((_, index) => {
-            // คำนวณวันย้อนหลัง
             const date = new Date();
             date.setDate(date.getDate() - (6 - index));
             const dateStr = date.toISOString().split("T")[0];
-
-            // ตรวจสอบว่ามีการเรียนในวันนั้นหรือไม่
             const isActive = streak.activeDays.includes(dateStr);
-
-            // ชื่อวันในสัปดาห์ภาษาไทย
             const dayNames = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
             const dayName = dayNames[date.getDay()];
 

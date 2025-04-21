@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 import Link from 'next/link';
 

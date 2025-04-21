@@ -1,7 +1,10 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงแนวทางการ Deploy แอปพลิเคชัน Next.js
 export default function DeploymentGuideline() {
@@ -666,6 +669,14 @@ export async function GET() {
         <CodeBlock code={healthCheckCode} language="typescript" fileName="app/api/health/route.ts" />
         <MarkdownContent content={summaryContent} />
       </div>
+            {/* เนื้อหาบทเรียน */}
+            <div className="bg-surface p-8 rounded-lg">
+              <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
+      
+                  <DeploymentGuideline />
+      
+              </Suspense>
+            </div>
     </div>
   );
 }

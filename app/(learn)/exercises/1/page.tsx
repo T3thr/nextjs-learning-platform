@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 import Link from 'next/link';
 
@@ -128,6 +130,15 @@ expect(document.querySelector("p")).not.toBeNull();`,
             }}
           />
         </div>
+      </div>
+
+      {/* เนื้อหาบทเรียน */}
+      <div className="bg-surface p-8 rounded-lg">
+        <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
+
+            <CreateHomePageExercisePage />
+
+        </Suspense>
       </div>
     </div>
   );

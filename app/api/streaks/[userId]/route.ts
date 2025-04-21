@@ -3,24 +3,24 @@ import { db } from "@/backend/db";
 import { userStreaks } from "@/backend/db/schema/users";
 import { eq } from "drizzle-orm";
 
-// กำหนดประเภทสำหรับพารามิเตอร์ของ route
-interface RouteParams {
-  params: {
-    userId: string;
-  };
-}
-
 // API Route สำหรับจัดการข้อมูลการเรียนต่อเนื่องของผู้ใช้
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest) {
   try {
-    const userId = parseInt(params.userId);
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "ต้องระบุ userId" },
+        { status: 400 }
+      );
+    }
+
+    const userIdNum = parseInt(userId);
 
     // ดึงข้อมูลการเรียนต่อเนื่อง
     const streak = await db.query.userStreaks.findFirst({
-      where: eq(userStreaks.userId, userId),
+      where: eq(userStreaks.userId, userIdNum),
     });
 
     if (!streak) {
@@ -53,17 +53,22 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest) {
   try {
-    const userId = parseInt(params.userId);
-    const { hasActivityToday } = await request.json();
+    const { userId, hasActivityToday } = await request.json();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "ต้องระบุ userId" },
+        { status: 400 }
+      );
+    }
+
+    const userIdNum = parseInt(userId);
 
     // ดึงข้อมูลการเรียนต่อเนื่องปัจจุบัน
     let streak = await db.query.userStreaks.findFirst({
-      where: eq(userStreaks.userId, userId),
+      where: eq(userStreaks.userId, userIdNum),
     });
 
     // คำนวณวันที่ปัจจุบัน
@@ -71,16 +76,14 @@ export async function POST(
     const activeDays = streak ? (streak.activeDays as string[]) : [];
 
     if (hasActivityToday && !activeDays.includes(today)) {
-      // เริ่มต้น transaction เพื่อความสอดคล้องของข้อมูล
       streak = await db.transaction(async (tx) => {
         let updatedStreak;
 
         if (!streak) {
-          // สร้างบันทึกใหม่ถ้ายังไม่มี
           const newStreak = await tx
             .insert(userStreaks)
             .values({
-              userId,
+              userId: userIdNum,
               currentStreak: 1,
               longestStreak: 1,
               lastActive: new Date(today),
@@ -90,7 +93,6 @@ export async function POST(
             .returning();
           updatedStreak = newStreak[0];
         } else {
-          // ตรวจสอบการเรียนต่อเนื่อง
           let currentStreak = streak.currentStreak;
           const lastActive = streak.lastActive ? new Date(streak.lastActive) : null;
           const currentDate = new Date(today);
@@ -111,7 +113,6 @@ export async function POST(
           const longestStreak = Math.max(currentStreak, streak.longestStreak);
           const updatedActiveDays = [...activeDays, today];
 
-          // อัปเดตบันทึก
           const updated = await tx
             .update(userStreaks)
             .set({
@@ -121,7 +122,7 @@ export async function POST(
               activeDays: updatedActiveDays,
               updatedAt: new Date(),
             })
-            .where(eq(userStreaks.userId, userId))
+            .where(eq(userStreaks.userId, userIdNum))
             .returning();
           updatedStreak = updated[0];
         }

@@ -1,10 +1,60 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงตัวอย่างการใช้งาน Dark Mode ใน Next.js
 export default function DarkModeExample() {
+  return (
+    <div className="container mx-auto py-8">
+      {/* ส่วนหัวของตัวอย่าง */}
+      <div className="mb-8">
+        <div className="flex items-center text-text-secondary mb-4">
+          <Link href="/examples" className="flex items-center hover:text-primary transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            กลับไปยังรายการตัวอย่าง
+          </Link>
+        </div>
+        
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">การใช้งาน Dark Mode</h1>
+            <p className="text-text-secondary">ตัวอย่างการใช้งาน Dark Mode ใน Next.js ด้วยวิธีการต่างๆ</p>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs mr-2">
+              ระดับกลาง
+            </span>
+            <span className="flex items-center text-text-secondary text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              20 นาที
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {/* เนื้อหาตัวอย่าง */}
+      <div className="bg-surface p-8 rounded-lg">
+        <ErrorBoundary fallback={<div>เกิดข้อผิดพลาดในการโหลดเนื้อหาบทเรียน</div>}>
+          <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
+            <DarkModeContent />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    </div>
+  );
+}
+
+// แยกเนื้อหาออกเป็นคอมโพเนนต์ย่อยเพื่อใช้ Suspense
+function DarkModeContent() {
   // เนื้อหาตัวอย่างในรูปแบบ Markdown
   const exampleContent = `# การใช้งาน Dark Mode ใน Next.js
 
@@ -665,63 +715,29 @@ export function CardFooter({ className, ...props }: CardProps) {
 การใช้งาน Dark Mode ช่วยเพิ่มความสามารถในการเข้าถึงและประสบการณ์ผู้ใช้ของเว็บไซต์ Next.js มีเครื่องมือและไลบรารีที่ช่วยให้การใช้งาน Dark Mode เป็นเรื่องง่าย`;
 
   return (
-    <div className="container mx-auto py-8">
-      {/* ส่วนหัวของตัวอย่าง */}
-      <div className="mb-8">
-        <div className="flex items-center text-text-secondary mb-4">
-          <Link href="/examples" className="flex items-center hover:text-primary transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            กลับไปยังรายการตัวอย่าง
-          </Link>
-        </div>
-        
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">การใช้งาน Dark Mode</h1>
-            <p className="text-text-secondary">ตัวอย่างการใช้งาน Dark Mode ใน Next.js ด้วยวิธีการต่างๆ</p>
-          </div>
-          
-          <div className="flex items-center">
-            <span className="badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs mr-2">
-              ระดับกลาง
-            </span>
-            <span className="flex items-center text-text-secondary text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              20 นาที
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {/* เนื้อหาตัวอย่าง */}
-      <div className="bg-surface p-8 rounded-lg">
-        <MarkdownContent content={exampleContent} />
-        <MarkdownContent content={tailwindDarkModeContent} />
-        <CodeBlock code={tailwindConfigCode} language="typescript" fileName="tailwind.config.ts" />
-        <CodeBlock code={globalCssCode} language="css" fileName="globals.css" />
-        <MarkdownContent content={contextApiContent} />
-        <CodeBlock code={themeContextCode} language="typescript" fileName="context/ThemeContext.tsx" />
-        <CodeBlock code={themeToggleCode} language="typescript" fileName="components/ThemeToggle.tsx" />
-        <MarkdownContent content={nextThemesContent} />
-        <CodeBlock code={installNextThemesCode} language="bash" fileName="Terminal" />
-        <CodeBlock code={nextThemesProviderCode} language="typescript" fileName="app/providers.tsx" />
-        <CodeBlock code={layoutCode} language="typescript" fileName="app/layout.tsx" />
-        <CodeBlock code={nextThemesToggleCode} language="typescript" fileName="components/ThemeToggle.tsx" />
-        <MarkdownContent content={cssVariablesContent} />
-        <CodeBlock code={cssVariablesCode} language="css" fileName="globals.css" />
-        <CodeBlock code={cssVariablesComponentCode} language="typescript" fileName="components/Card.tsx" />
-        <MarkdownContent content={serverComponentsContent} />
-        <CodeBlock code={serverComponentsCode} language="typescript" fileName="app/layout.tsx" />
-        <CodeBlock code={cookiesCode} language="typescript" fileName="components/ThemeToggle.tsx" />
-        <MarkdownContent content={uiComponentsContent} />
-        <CodeBlock code={buttonComponentCode} language="typescript" fileName="components/Button.tsx" />
-        <CodeBlock code={cardComponentCode} language="typescript" fileName="components/Card.tsx" />
-        <MarkdownContent content={summaryContent} />
-      </div>
-    </div>
+    <>
+      <MarkdownContent content={exampleContent} />
+      <MarkdownContent content={tailwindDarkModeContent} />
+      <CodeBlock code={tailwindConfigCode} language="typescript" fileName="tailwind.config.ts" />
+      <CodeBlock code={globalCssCode} language="css" fileName="globals.css" />
+      <MarkdownContent content={contextApiContent} />
+      <CodeBlock code={themeContextCode} language="typescript" fileName="context/ThemeContext.tsx" />
+      <CodeBlock code={themeToggleCode} language="typescript" fileName="components/ThemeToggle.tsx" />
+      <MarkdownContent content={nextThemesContent} />
+      <CodeBlock code={installNextThemesCode} language="bash" fileName="Terminal" />
+      <CodeBlock code={nextThemesProviderCode} language="typescript" fileName="app/providers.tsx" />
+      <CodeBlock code={layoutCode} language="typescript" fileName="app/layout.tsx" />
+      <CodeBlock code={nextThemesToggleCode} language="typescript" fileName="components/ThemeToggle.tsx" />
+      <MarkdownContent content={cssVariablesContent} />
+      <CodeBlock code={cssVariablesCode} language="css" fileName="globals.css" />
+      <CodeBlock code={cssVariablesComponentCode} language="typescript" fileName="components/Card.tsx" />
+      <MarkdownContent content={serverComponentsContent} />
+      <CodeBlock code={serverComponentsCode} language="typescript" fileName="app/layout.tsx" />
+      <CodeBlock code={cookiesCode} language="typescript" fileName="components/ThemeToggle.tsx" />
+      <MarkdownContent content={uiComponentsContent} />
+      <CodeBlock code={buttonComponentCode} language="typescript" fileName="components/Button.tsx" />
+      <CodeBlock code={cardComponentCode} language="typescript" fileName="components/Card.tsx" />
+      <MarkdownContent content={summaryContent} />
+    </>
   );
 }

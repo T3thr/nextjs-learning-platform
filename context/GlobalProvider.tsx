@@ -11,7 +11,7 @@
 import { SessionProvider } from 'next-auth/react';
 import { ProgressProvider } from './ProgressContext';
 import { AuthProvider } from './AuthContext';
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 
 // คอมโพเนนต์ GlobalProvider รวม providers ทั้งหมดเข้าด้วยกัน
 // เพื่อให้สามารถเข้าถึงข้อมูลได้ทั่วทั้งแอปพลิเคชัน
@@ -21,13 +21,13 @@ export default function GlobalProvider({ children }: { children: ReactNode }) {
     <SessionProvider>
       {/* AuthProvider สำหรับจัดการสถานะการยืนยันตัวตน */}
       <AuthProvider>
-        {/* ThemeProvider สำหรับจัดการธีมมืด/สว่าง */}
-
-          {/* ProgressProvider สำหรับจัดการความคืบหน้าของผู้ใช้ */}
-          <ProgressProvider>
+        {/* ProgressProvider สำหรับจัดการความคืบหน้าของผู้ใช้ */}
+        <ProgressProvider>
+          {/* Wrapping children in Suspense for useSearchParams() */}
+          <Suspense fallback={<div>กำลังโหลด...</div>}>
             {children}
-          </ProgressProvider>
-
+          </Suspense>
+        </ProgressProvider>
       </AuthProvider>
     </SessionProvider>
   );

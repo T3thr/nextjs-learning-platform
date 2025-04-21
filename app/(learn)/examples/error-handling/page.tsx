@@ -1,10 +1,12 @@
-import React from 'react';
+"use client";
+
+import React, { Suspense } from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
 
 // หน้าแสดงตัวอย่างการใช้งาน Error Handling ใน Next.js
-export default function ErrorHandlingExample() {
+function ErrorHandlingExampleContent() {
   // เนื้อหาตัวอย่างในรูปแบบ Markdown
   const exampleContent = `# การจัดการข้อผิดพลาด (Error Handling) ใน Next.js
 
@@ -1266,5 +1268,13 @@ export async function GET(request) {
         <MarkdownContent content={summaryContent} />
       </div>
     </div>
+  );
+}
+
+export default function ErrorHandlingExample() {
+  return (
+    <Suspense fallback={<div>กำลังโหลด...</div>}>
+      <ErrorHandlingExampleContent />
+    </Suspense>
   );
 }
