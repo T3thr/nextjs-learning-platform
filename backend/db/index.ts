@@ -4,21 +4,24 @@ import { Pool } from 'pg';
 import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
 
-// สร้างการเชื่อมต่อกับฐานข้อมูล PostgreSQL ผ่าน Neon
-// ใช้ connection string จาก environment variable
-const sql = neon(process.env.DATABASE_URL!);
+// ตรวจสอบให้แน่ใจว่ามี DATABASE_URL
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is not set');
+}
 
-// สร้าง Drizzle ORM client สำหรับการ query ผ่าน Neon HTTP
-// เพื่อให้สามารถใช้งาน type-safe queries ได้
+// สร้างการเชื่อมต่อกับฐานข้อมูล PostgreSQL ผ่าน Neon
+const sql = neon(process.env.DATABASE_URL);
+
+// สร้าง Drizzle ORM client สำหรับการ query
 export const db = drizzle(sql, { schema });
 
 // สร้างการเชื่อมต่อผ่าน node-postgres สำหรับการ migrate
-// ใช้เฉพาะในสคริปต์ migration เพื่อรองรับ Neon
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 20, // จำนวนการเชื่อมต่อสูงสุดใน pool
-  idleTimeoutMillis: 30000, // เวลาที่การเชื่อมต่อไม่ได้ใช้งานก่อนปิด
-  connectionTimeoutMillis: 2000, // เวลารอการเชื่อมต่อสูงสุด
+  ssl: true, // จำเป็นสำหรับการเชื่อมต่อกับ Neon
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 // สร้าง Drizzle ORM client สำหรับ migration
