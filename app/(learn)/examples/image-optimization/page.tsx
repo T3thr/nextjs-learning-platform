@@ -368,8 +368,8 @@ const nextConfig = {
 
 module.exports = nextConfig;`;
 
-  // โค้ดตัวอย่างสำหรับการใช้งานรูปภาพจากภายนอก
-  const externalImageCode = `// components/ExternalImage.tsx
+// โค้ดตัวอย่างสำหรับการใช้งานรูปภาพจากภายนอก
+const externalImageCode = `// components/ExternalImage.tsx
 import Image from 'next/image';
 
 // คอมโพเนนต์แสดงการใช้งานรูปภาพจากภายนอก
@@ -417,7 +417,7 @@ export default function ExternalImage() {
         
         <div className="bg-surface-secondary p-4 rounded-lg">
           <pre className="text-sm overflow-x-auto">
-{`// ตัวอย่างการใช้งานรูปภาพจาก CMS
+{\`// ตัวอย่างการใช้งานรูปภาพจาก CMS
 import Image from 'next/image';
 
 // ข้อมูลจาก CMS
@@ -446,7 +446,7 @@ export default function ProductImage() {
       />
     </div>
   );
-}`}
+}\`}
           </pre>
         </div>
       </div>
