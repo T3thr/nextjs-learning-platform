@@ -15,6 +15,13 @@
       "when": 1745199510163,
       "tag": "0001_hard_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745263185784,
+      "tag": "0002_graceful_millenium_guard",
+      "breakpoints": true
     }
   ]
 }

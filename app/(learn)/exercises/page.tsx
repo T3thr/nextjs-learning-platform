@@ -5,7 +5,7 @@ import ExerciseCard from '@/components/ExerciseCard';
 import { Suspense } from 'react';
 import { db } from '@/backend/db';
 import { exercises, lessons } from '@/backend/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 
 // อินเตอร์เฟสสำหรับข้อมูลแบบฝึกหัด
 // Interface for exercise data
@@ -34,9 +34,11 @@ async function getExercises(): Promise<Exercise[]> {
         lessonTitle: lessons.title,
       })
       .from(exercises)
-      .leftJoin(lessons, eq(exercises.lessonId, lessons.id));
+      .leftJoin(lessons, eq(exercises.lessonId, lessons.id))
+      .orderBy(asc(exercises.id)); // จัดเรียงตาม id จากน้อยไปมาก
 
     // แปลงข้อมูลให้ตรงกับอินเตอร์เฟส
+    // Map data to match the interface
     return exerciseData.map((exercise) => ({
       id: exercise.id.toString(),
       title: exercise.title,
@@ -107,7 +109,6 @@ export default async function ExercisesPage({
       </div>
 
       {/* รายการแบบฝึกหัด */}
-      {/* List of exercises */}
       <Suspense fallback={<div>กำลังโหลด...</div>}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredExercises.length > 0 ? (

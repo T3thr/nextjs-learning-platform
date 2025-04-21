@@ -96,6 +96,17 @@ async function main() {
         published: true,
       },
       {
+        slug: 'data-fetching',
+        title: 'การจัดการข้อมูลใน Next.js',
+        description: 'เรียนรู้วิธีการดึงข้อมูลใน Next.js ด้วย Server Components',
+        content: '# การจัดการข้อมูลใน Next.js\n\nNext.js 13+ มาพร้อมกับวิธีการจัดการข้อมูลแบบใหม่ที่ใช้ประโยชน์จาก React Server Components ทำให้การดึงข้อมูลทำได้ง่ายและมีประสิทธิภาพมากขึ้น\n  ## การดึงข้อมูลใน Server Components\n ใน Server Components คุณสามารถใช้ async/await ในการดึงข้อมูลได้โดยตรง โดยไม่จำเป็นต้องใช้ useEffect หรือ useState เหมือนใน Client Components ทั่วไป ซึ่งทำให้โค้ดสั้นลงและอ่านง่ายขึ้น\n```',
+        difficulty: 'beginner',
+        order: 3,
+        categoryId: nextjsBasicsId,
+        estimatedMinutes: 25,
+        published: true,
+      },
+      {
         slug: 'enterprise-architecture',
         title: 'สถาปัตยกรรมระดับองค์กร',
         description: 'เรียนรู้การออกแบบสถาปัตยกรรม Next.js สำหรับแอปพลิเคชันขนาดใหญ่',
@@ -106,15 +117,42 @@ async function main() {
         estimatedMinutes: 30,
         published: true,
       },
+      {
+        slug: 'advanced-state-management',
+        title: 'การจัดการสถานะขั้นสูง',
+        description: 'เรียนรู้เทคนิคการจัดการสถานะขั้นสูงใน Next.js',
+        content: '# การจัดการสถานะขั้นสูง\n\nการจัดการสถานะ (State Management) เป็นส่วนสำคัญในการพัฒนาแอปพลิเคชัน Next.js ขนาดใหญ่ โดยเฉพาะเมื่อแอปพลิเคชันมีความซับซ้อนและมีการแชร์ข้อมูลระหว่างคอมโพเนนต์จำนวนมาก\n\n## ทางเลือกในการจัดการสถานะใน Next.js\n\n```\nNext.js มีทางเลือกหลายวิธีในการจัดการสถานะ:',
+        difficulty: 'intermediate',
+        order: 2,
+        categoryId: enterpriseDevId,
+        estimatedMinutes: 35,
+        published: true,
+      },
+      {
+        slug: 'nextjs-optimization',
+        title: 'การเพิ่มประสิทธิภาพ Next.js',
+        description: 'เรียนรู้เทคนิคการเพิ่มประสิทธิภาพแอปพลิเคชัน Next.js',
+        content: 'การเพิ่มประสิทธิภาพ Next.js',
+        difficulty: 'advanced',
+        order: 1,
+        categoryId: advancedPatternsId,
+        estimatedMinutes: 40,
+        published: true,
+      }
     ]).returning({ id: lessons.id });
 
     const introLessonId = insertedLessons[0].id;
     const appRouterLessonId = insertedLessons[1].id;
+    const dataFetchingLessonId = insertedLessons[2].id;
+    const enterpriseArchitectureLessonId = insertedLessons[3].id;
+    const advancedStateManagementLessonId = insertedLessons[4].id;
+    const nextjsOptimizationLessonId = insertedLessons[5].id;
 
     // เพิ่มแบบฝึกหัด
     console.log('เพิ่มข้อมูลแบบฝึกหัด...');
     await db.insert(exercises).values([
       {
+        id: 1,
         title: 'สร้างหน้าแรกด้วย Next.js',
         description: 'ฝึกสร้างหน้าแรกของเว็บไซต์ด้วย Next.js',
         instructions: '# สร้างหน้าแรกด้วย Next.js\n\nในแบบฝึกหัดนี้ คุณจะได้สร้างหน้าแรกของเว็บไซต์ด้วย Next.js\n\n## ขั้นตอน\n\n1. สร้างไฟล์ `app/page.tsx`\n2. สร้างคอมโพเนนต์ `Page` ที่แสดงข้อความทักทาย\n3. เพิ่มสไตล์ด้วย Tailwind CSS',
@@ -127,6 +165,7 @@ async function main() {
         published: true,
       },
       {
+        id: 2,
         title: 'สร้างเส้นทางแบบไดนามิกด้วย App Router',
         description: 'ฝึกสร้างเส้นทางแบบไดนามิกด้วย App Router ของ Next.js',
         instructions: '# สร้างเส้นทางแบบไดนามิกด้วย App Router\n\nในแบบฝึกหัดนี้ คุณจะได้สร้างเส้นทางแบบไดนามิกด้วย App Router ของ Next.js\n\n## ขั้นตอน\n\n1. สร้างไฟล์ `app/posts/[id]/page.tsx`\n2. รับค่าพารามิเตอร์ `id` จาก URL\n3. แสดงข้อมูลโพสต์ตาม `id` ที่ได้รับ',
@@ -138,6 +177,58 @@ async function main() {
         points: 15,
         published: true,
       },
+      {
+        id: 3,
+        title: 'ดึงข้อมูลด้วย Server Components',
+        description: 'ฝึกการดึงข้อมูลจาก API ด้วย Server Components',
+        instructions: 'instruction',
+        starterCode:'starter',
+        testCases: 'test Cases',
+        solutionCode: 'Solutions',
+        difficulty: 'intermediate',
+        lessonId: dataFetchingLessonId,
+        points: 20,
+        published: true,
+      },
+      {
+        id: 4,
+        title: 'สร้างฟอร์มด้วย Client Components',
+        description: 'ฝึกการสร้างฟอร์มและจัดการสถานะด้วย Client Components',
+        instructions: 'instruction',
+        starterCode:'starter',
+        testCases: 'test Cases',
+        solutionCode: 'Solutions',
+        difficulty: 'intermediate',
+        lessonId: enterpriseArchitectureLessonId,
+        points: 25,
+        published: true,
+      },
+      {
+        id: 5,
+        title: 'สร้างโครงสร้างโปรเจคระดับองค์กร',
+        description: 'ฝึกการจัดโครงสร้างโปรเจค Next.js สำหรับแอปพลิเคชันขนาดใหญ่',
+        instructions: 'instruction',
+        starterCode:'starter',
+        testCases: 'test Cases',
+        solutionCode: 'Solutions',
+        difficulty: 'advanced',
+        lessonId: advancedStateManagementLessonId,
+        points: 30,
+        published: true,
+      },
+      {
+        id: 6,
+        title: 'เพิ่มประสิทธิภาพการโหลดข้อมูล',
+        description: 'ฝึกการใช้เทคนิคต่างๆ เพื่อเพิ่มประสิทธิภาพการโหลดข้อมูลใน Next.js',
+        instructions: 'instruction',
+        starterCode:'starter',
+        testCases: 'test Cases',
+        solutionCode: 'Solutions',
+        difficulty: 'advanced',
+        lessonId: nextjsOptimizationLessonId,
+        points: 35,
+        published: true,
+      }
     ]);
 
     // เพิ่มแนวทางปฏิบัติ

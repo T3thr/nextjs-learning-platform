@@ -131,15 +131,6 @@ expect(document.querySelector("p")).not.toBeNull();`,
           />
         </div>
       </div>
-
-      {/* เนื้อหาบทเรียน */}
-      <div className="bg-surface p-8 rounded-lg">
-        <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
-
-            <CreateHomePageExercisePage />
-
-        </Suspense>
-      </div>
     </div>
   );
 }
