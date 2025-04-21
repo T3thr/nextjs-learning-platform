@@ -1,10 +1,7 @@
-"use client";
-
-import React, { Suspense } from 'react';
+import React from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
-import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงรายละเอียดบทเรียน Next.js พื้นฐาน
 export default function IntroductionToNextjsPage() {
@@ -119,14 +116,7 @@ export default function Home() {
         <MarkdownContent content={finalContent} />
         <CodeBlock code={homePageCode} language="typescript" fileName="app/page.tsx" />
         <MarkdownContent content={summaryContent} />
-                
-        <div className="bg-surface p-8 rounded-lg">
-        <ErrorBoundary fallback={<div>เกิดข้อผิดพลาดในการโหลดเนื้อหาบทเรียน</div>}>
-          <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
-            <IntroductionToNextjsPage />
-          </Suspense>
-        </ErrorBoundary>
-
+        
         {/* ปุ่มนำทาง */}
         <div className="mt-12 pt-6 border-t border-text-secondary/10 flex justify-between">
           <div></div> {/* ไม่มีบทเรียนก่อนหน้า */}
@@ -149,7 +139,6 @@ export default function Home() {
           </Link>
         </div>
       </div>
-    </div>
     </div>
   );
 }

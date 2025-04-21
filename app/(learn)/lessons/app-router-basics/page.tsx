@@ -1,10 +1,7 @@
-"use client";
-
-import React, { Suspense } from 'react';
+import React from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
-import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงรายละเอียดบทเรียน App Router พื้นฐาน
 export default function AppRouterBasicsPage() {
@@ -221,15 +218,7 @@ export default function BlogLayout({
         <MarkdownContent content={layoutContent} />
         <CodeBlock code={layoutCode} language="typescript" fileName="การใช้งาน Layout" />
         <MarkdownContent content={summaryContent} />
-
-        {/* เนื้อหาบทเรียน */}
-        <div className="bg-surface p-8 rounded-lg">
-        <ErrorBoundary fallback={<div>เกิดข้อผิดพลาดในการโหลดเนื้อหาบทเรียน</div>}>
-          <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
-            <AppRouterBasicsPage />
-          </Suspense>
-        </ErrorBoundary>
-
+        
         {/* ปุ่มนำทาง */}
         <div className="mt-12 pt-6 border-t border-text-secondary/10 flex justify-between">
           <Link href="/lessons/introduction-to-nextjs" className="btn btn-outline">
@@ -257,7 +246,6 @@ export default function BlogLayout({
           </Link>
         </div>
       </div>
-    </div>
     </div>
   );
 }

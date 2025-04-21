@@ -1,10 +1,7 @@
-"use client";
-
-import React, { Suspense } from 'react';
+import React from 'react';
 import MarkdownContent from '@/components/MarkdownContent';
 import CodeBlock from '@/components/CodeBlock';
 import Link from 'next/link';
-import ErrorBoundary from '@/components/ErrorBoundary';
 
 // หน้าแสดงแนวทางการจัดการ UI และ Styling ใน Next.js
 export default function StylingUIGuideline() {
@@ -742,14 +739,6 @@ export default function RootLayout({
         <MarkdownContent content={layoutComponentsContent} />
         <CodeBlock code={layoutComponentsCode} language="typescript" fileName="Layout Components" />
         <MarkdownContent content={summaryContent} />
-      </div>
-      {/* เนื้อหาบทเรียน */}
-      <div className="bg-surface p-8 rounded-lg">
-        <ErrorBoundary fallback={<div>เกิดข้อผิดพลาดในการโหลดเนื้อหาบทเรียน</div>}>
-          <Suspense fallback={<div>กำลังโหลดเนื้อหาบทเรียน...</div>}>
-            <StylingUIGuideline />
-          </Suspense>
-        </ErrorBoundary>
       </div>
     </div>
   );
