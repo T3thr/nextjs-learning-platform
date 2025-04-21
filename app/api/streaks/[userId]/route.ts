@@ -3,8 +3,18 @@ import { db } from "@/backend/db";
 import { userStreaks } from "@/backend/db/schema/users";
 import { eq } from "drizzle-orm";
 
+// กำหนดประเภทสำหรับพารามิเตอร์ของ route
+interface StreakParams {
+  params: {
+    userId: string;
+  };
+}
+
 // API Route สำหรับจัดการข้อมูลการเรียนต่อเนื่องของผู้ใช้
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: StreakParams
+) {
   try {
     const userId = parseInt(params.userId);
 
@@ -43,7 +53,10 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: StreakParams
+) {
   try {
     const userId = parseInt(params.userId);
     const { hasActivityToday } = await request.json();
